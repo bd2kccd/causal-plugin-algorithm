@@ -2,18 +2,78 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<groupId>edu.pitt.dbmi</groupId>
 	<artifactId>causal-plugin-algorithm</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-
 	<name>causal-plugin-algorithm</name>
-	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+		<plugin.id>causal-algorithm-plugin</plugin.id>
+		<plugin.class>edu.pitt.dbmi.causal.plugin.algorithm.CausalPluginAlgorithm</plugin.class>
+		<plugin.version>0.0.1</plugin.version>
+		<plugin.provider>Chirayu Wongchokprasitti</plugin.provider>
+		<plugin.dependencies />
 	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<finalName>${project.artifactId}-${project.version}-plugin</finalName>
+					<appendAssemblyId>false</appendAssemblyId>
+					<attach>false</attach>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+						</manifest>
+						<manifestEntries>
+							<Plugin-Id>${plugin.id}</Plugin-Id>
+							<Plugin-Version>${plugin.version}</Plugin-Version>
+							<Plugin-Provider>${plugin.provider}</Plugin-Provider>
+							<Plugin-Class>${plugin.class}</Plugin-Class>
+							<Plugin-Dependencies>${plugin.dependencies}</Plugin-Dependencies>
+						</manifestEntries>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+				<version>2.8.2</version>
+			</plugin>
+		</plugins>
+	</build>
 
 	<dependencies>
 
@@ -32,8 +92,10 @@
 		<!-- pf4j plugins -->
 		<dependency>
 			<groupId>org.pf4j</groupId>
-			<artifactId>pf4j-spring</artifactId>
-			<version>0.5.0</version>
+			<artifactId>pf4j</artifactId>
+			<version>2.5.0-SNAPSHOT</version>
+			<!-- !!! VERY IMPORTANT -->
+			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>
