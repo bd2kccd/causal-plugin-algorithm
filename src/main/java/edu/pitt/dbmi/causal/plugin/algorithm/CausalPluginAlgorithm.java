@@ -151,6 +151,11 @@ public class CausalPluginAlgorithm extends Plugin {
 			this.compareToTrue = compareToTrue;
 		}
 
+		@Override
+		public String getAlgorithmDescriptions() {
+			return "This is an algorithm description.";
+		}
+
 	}
 
 }
