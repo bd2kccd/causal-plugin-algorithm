@@ -153,7 +153,7 @@ public class CausalPluginAlgorithm extends Plugin {
 
 		@Override
 		public String getAlgorithmDescriptions() {
-			return "This is an algorithm description.";
+			return "This is a plugin algorithm description.";
 		}
 
 	}
