@@ -1,6 +1,5 @@
 package edu.pitt.dbmi.causal.plugin.algorithm;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,14 +17,14 @@ import edu.cmu.tetrad.algcomparison.utils.HasKnowledge;
 import edu.cmu.tetrad.algcomparison.utils.TakesInitialGraph;
 import edu.cmu.tetrad.algcomparison.utils.UsesScoreWrapper;
 import edu.cmu.tetrad.annotation.AlgType;
-import edu.cmu.tetrad.data.BoxDataSet;
-import edu.cmu.tetrad.data.CovarianceMatrixOnTheFly;
 import edu.cmu.tetrad.data.DataModel;
 import edu.cmu.tetrad.data.DataType;
 import edu.cmu.tetrad.data.IKnowledge;
 import edu.cmu.tetrad.data.Knowledge2;
 import edu.cmu.tetrad.graph.EdgeListGraph;
+import edu.cmu.tetrad.graph.Endpoint;
 import edu.cmu.tetrad.graph.Graph;
+import edu.cmu.tetrad.graph.GraphUtils;
 import edu.cmu.tetrad.search.SearchGraphUtils;
 import edu.cmu.tetrad.util.JsonUtils;
 import edu.cmu.tetrad.util.Parameters;
@@ -74,50 +73,23 @@ public class CausalPluginAlgorithm extends Plugin {
 
 		@Override
 		public Graph search(DataModel dataSet, Parameters parameters) {
-			if (algorithm != null) {
-				initialGraph = algorithm.search(dataSet, parameters);
-			}
-
-			edu.cmu.tetrad.search.Fges search = new edu.cmu.tetrad.search.Fges(score.getScore(dataSet, parameters));
-			search.setFaithfulnessAssumed(parameters.getBoolean("faithfulnessAssumed"));
-			search.setKnowledge(knowledge);
-			search.setVerbose(parameters.getBoolean("verbose"));
-			search.setMaxDegree(parameters.getInt("maxDegree"));
-			search.setSymmetricFirstStep(parameters.getBoolean("symmetricFirstStep"));
-
-			Object obj = parameters.get("printStream");
-			if (obj instanceof PrintStream) {
-				search.setOut((PrintStream) obj);
-			}
-
-			if (initialGraph != null) {
-				search.setInitialGraph(initialGraph);
-			}
-
-			return search.search();
+			Graph graph = new EdgeListGraph(dataSet.getVariables());
+			graph.fullyConnect(Endpoint.ARROW);
+			
+			return graph;
 		}
 
-		public Graph search(String dataSetJson, String parametersJson) {
+		public String search(String dataSetJson, String parametersJson) {
 			DataModel dataSet = null;
 			Parameters parameters = null;
 			parameters = gson.fromJson(parametersJson, Parameters.class);
 						
-			//dataSet = JsonUtils.parseJSONObjectToTetradGraph(dataSetJson);
-			
 			DataType dataType = getDataType();
-			switch(dataType) {
-			case Continuous:
-			case Discrete:
-			case Mixed:
-				dataSet = gson.fromJson(dataSetJson, BoxDataSet.class);
-				break;
-			case Covariance:
-				dataSet = gson.fromJson(dataSetJson, CovarianceMatrixOnTheFly.class);
-			default:
-				break;
-			}
+			dataSet = JsonUtils.parseJSONObjectToDataSet(dataSetJson, dataType);
 			
-			return search(dataSet, parameters);
+			Graph graph = search(dataSet, parameters);
+			Gson gson = new Gson();
+			return gson.toJson(graph);
 		}
 		
 		@Override
